@@ -7,12 +7,17 @@ import (
 	"time"
 	"appengine"
 	"appengine/user"
+	"strings"
+	"modelservice/matomeuser"
+	"util"
+	"strconv"
+	"encoding/json"
 )
 
 func init() {
-	http.HandleFunc("/", handler)
 	http.HandleFunc("/createsamplerss/", sampleHandler)
 	http.HandleFunc("/auth/", authHandler)
+	http.HandleFunc("/", handler)
 }
 
 func handler(w http.ResponseWriter, r *http.Request)  {
