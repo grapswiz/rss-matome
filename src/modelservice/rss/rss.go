@@ -8,10 +8,10 @@ import (
 )
 
 type Rss struct {
-	Id	int64	`json:id" datastore:"-"`
-	Urls	[]string	`json:"urls" datastore:",noindex"`
-	Created	time.Time	`json:"created"`
-	Updated	time.Time	`json:"updated"`
+	Id	int64	`json:"id" datastore:"-"`
+	Urls	[]string	`json:"urls" datastore:"urls,noindex"`
+	Created	time.Time	`json:"created" datastore:"created"`
+	Updated	time.Time	`json:"updated" datastore:"updated"`
 }
 
 func (r *Rss) key(c appengine.Context) *datastore.Key {

@@ -8,10 +8,10 @@ import (
 
 type User struct {
 	Id	string `json:"id" datastore:"-"`
-	Email	string `json:"email"`
-	Nickname	string `json:"nickname"`
-	Admin	bool	`json:"admin"`
-	Created	time.Time	`json:"created`
+	Email	string `json:"email" datastore:"email"`
+	Nickname	string `json:"nickname" datastore:"nickname"`
+	Admin	bool	`json:"admin" datastore:"admin"`
+	Created	time.Time	`json:"created" datastore:"created"`
 }
 
 func (u *User) key(c appengine.Context) *datastore.Key {
@@ -23,6 +23,6 @@ func (u *User) Save(c appengine.Context) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	u.Id = k.IntID()
+	u.Id = k.StringID()
 	return u, nil
 }
