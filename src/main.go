@@ -72,7 +72,10 @@ func sampleHandler(w http.ResponseWriter, r *http.Request) {
 		Updated: time.Now(),
 		Urls: []string{"http://blog.memoto.com/feed/", "http://blog.alexmaccaw.com/feed"},
 	}
-	r2, _ := r1.Save(appengine.NewContext(r))
+	r2, err := r1.Save(appengine.NewContext(r))
+	if err != nil {
+		return
+	}
 	fmt.Fprint(w, r2.Id)
 }
 
