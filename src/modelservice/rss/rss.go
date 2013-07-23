@@ -31,13 +31,9 @@ func (r *Rss) Save(c appengine.Context) (*Rss, error) {
 	return r, nil
 }
 
-func Get(c appengine.Context, id int64) (Rss, error) {
+func Get(c appengine.Context, id int64, userId string) (Rss, error) {
 	var r Rss
-	u := user.Current(c)
-	if u == nil {
-		return r, nil
-	}
-	key := datastore.NewKey(c, "Rss", "", id, datastore.NewKey(c, "User", u.Email, 0, nil))
+	key := datastore.NewKey(c, "Rss", "", id, datastore.NewKey(c, "User", userId, 0, nil))
 	err := datastore.Get(c, key, &r)
 	if err == nil {
 		r.Id = key.IntID()

@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"encoding/xml"
 	"time"
+	"math/rand"
+	"strconv"
 )
 
 type Auth struct {
@@ -52,6 +54,7 @@ type Feed struct {
 	Title	string	`json:"title"`
 	Link	string	`json:"link"`
 	Entries	[]Entry	`json:"entries" xml:"entry"`
+	PubDate	string	`json:"pubDate" xml:"updated"`
 }
 
 func ParseXmlToFeed(StringXml string) Feed {
@@ -61,3 +64,69 @@ func ParseXmlToFeed(StringXml string) Feed {
 	return feed
 }
 
+type Guid struct {
+	XMLName	xml.Name	`xml:"guid"`
+	Guid	string	`xml:",chardata"`
+	IsPermaLink	bool	`xml:"isPermaLink,attr"`
+}
+
+type Item struct {
+	XMLName	xml.Name	`xml:"item"`
+	Title	string	`xml:"title"`
+	Description	string	`xml:"description"`
+	Link	string	`xml:"link"`
+	GUID	Guid	`xml:"guid"`
+	PubDate	string	`xml:"pubDate"`
+}
+
+type Channel struct {
+	XMLName	xml.Name	`xml:"channel"`
+	Title	string	`xml:"title"`
+	Description	string	`xml:"description"`
+	Link	string	`xml:"link"`
+	LastBuildDate	string	`xml:"lastBuildDate"`
+	PubDate	string	`xml:"pubDate"`
+	TTL	int	`xml:"ttl"`
+	Items	[]Item
+}
+
+type Rss struct {
+	XMLName	xml.Name	`xml:"rss"`
+	Version	string	`xml:"version,attr"`
+	Channel	Channel
+}
+
+func FeedToRss(f Feed) Rss {
+	pubDate, err := time.Parse(time.RFC3339, f.PubDate)
+	var pubDateString string
+	if err != nil {
+		pubDateString = ""
+	} else {
+		pubDateString = pubDate.Format(time.RFC1123Z)
+	}
+	var rss = Rss{
+		Version: "2.0",
+		Channel: Channel{
+			Title: f.Title,
+			Description: "RSS's Description",
+			Link: f.Link,
+			LastBuildDate: time.Now().Format(time.RFC1123Z),
+			TTL: 1800,
+			Items: nil,
+		},
+	}
+	rss.Channel.PubDate = pubDateString
+	var items = make([]Item, len(f.Entries))
+	for i, v := range f.Entries {
+		items[i].Title = v.Title
+		items[i].Description = "Feed's Description"
+		items[i].Link = v.Link.Href
+		items[i].GUID = Guid{
+			Guid: strconv.FormatInt(rand.Int63(), 10),
+			IsPermaLink: false,
+		}
+		items[i].PubDate = v.Published.Format(time.RFC1123Z)
+	}
+	rss.Channel.Items = items
+	return rss
+}
